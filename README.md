@@ -8,6 +8,29 @@ Items added will not cause the set to be resorted. This must be done as an extra
 import "github.com/nlatham1999/sortedset"
 ```
 
+## Example Usage
+
+```go
+	type coord struct {
+		x, y int
+	}
+	ss := NewSortedSet(coord{1, 2}, coord{2, 3}, coord{3, 4})
+	ss.SortDesc(func(e interface{}) interface{} {
+		c := e.(coord)
+		return c.x
+	})
+```
+
+```go
+	ss := NewSortedSet(1, 3)
+	ss.InsertBefore(2, 3)
+```
+
+```go
+	ss := NewSortedSet(1, 2, 3)
+	next, _ := ss.Next(1)
+```
+
 ## Index
 
 - [Variables](<#variables>)
