@@ -211,6 +211,11 @@ func (ss *SortedSet) Remove(value interface{}) error {
 		return ErrItemDoesntExist
 	}
 
+	if len(ss.values) == 0 {
+		ss.head = nil
+		ss.tail = nil
+	}
+
 	return nil
 }
 
