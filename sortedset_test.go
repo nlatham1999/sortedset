@@ -243,3 +243,27 @@ func TestSortedSet_ComplexStruct(t *testing.T) {
 		panic("SortedSet_ComplexStruct failed")
 	}
 }
+
+func TestSortedSet_Remove_First(t *testing.T) {
+	ss := NewSortedSet(1, 2, 3)
+	ss.Remove(1)
+	v := ss.List()
+	if len(v) != 2 {
+		panic("SortedSet_Remove_First failed")
+	}
+	if ss.head != 2 {
+		panic("SortedSet_Remove_First failed")
+	}
+}
+
+func TestSortedSet_Remove_Last(t *testing.T) {
+	ss := NewSortedSet(1, 2, 3)
+	ss.Remove(3)
+	v := ss.List()
+	if len(v) != 2 {
+		panic("SortedSet_Remove_Last failed")
+	}
+	if ss.tail != 2 {
+		panic("SortedSet_Remove_Last failed")
+	}
+}

@@ -200,12 +200,19 @@ func (ss *SortedSet) Previous(value interface{}) (interface{}, error) {
 func (ss *SortedSet) Remove(value interface{}) error {
 	if _, ok := ss.values[value]; ok {
 		key := ss.values[value]
+
 		if key.previous != nil {
 			ss.values[key.previous].next = key.next
+		} else {
+			ss.head = key.next
 		}
+
 		if key.next != nil {
 			ss.values[key.next].previous = key.previous
+		} else {
+			ss.tail = key.previous
 		}
+
 		delete(ss.values, value)
 	} else {
 		return ErrItemDoesntExist
