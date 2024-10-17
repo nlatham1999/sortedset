@@ -74,17 +74,17 @@ func TestSortedSet_List(t *testing.T) {
 	}
 }
 
-func TestSortedSet_Next(t *testing.T) {
+func TestSortedSet_After(t *testing.T) {
 	ss := NewSortedSet(1, 2, 3)
-	next, _ := ss.Next(1)
+	next, _ := ss.After(1)
 	if next != 2 {
 		panic("SortedSet_Next failed")
 	}
 }
 
-func TestSortedSet_Previous(t *testing.T) {
+func TestSortedSet_Before(t *testing.T) {
 	ss := NewSortedSet(1, 2, 3)
-	previous, _ := ss.Previous(2)
+	previous, _ := ss.Before(2)
 	if previous != 1 {
 		panic("SortedSet_Previous failed")
 	}
@@ -265,5 +265,144 @@ func TestSortedSet_Remove_Last(t *testing.T) {
 	}
 	if ss.tail != 2 {
 		panic("SortedSet_Remove_Last failed")
+	}
+}
+
+func TestSortedSet_Next(t *testing.T) {
+	ss := NewSortedSet(1, 2, 3, 4, 5)
+
+	// make sure that creating a new SortedSet sets the pointer to the head
+	v, _ := ss.Next()
+	if v != 2 {
+		panic("SortedSet_Next failed")
+	}
+
+	v, _ = ss.Next()
+	if v != 3 {
+		panic("SortedSet_Next failed")
+	}
+
+	v, _ = ss.Next()
+	if v != 4 {
+		panic("SortedSet_Next failed")
+	}
+
+	// make sure that calling First sets the pointer to the head
+	ss.First()
+	v, _ = ss.Next()
+	if v != 2 {
+		panic("SortedSet_Next failed")
+	}
+
+	// make sure that adding a new value to an empty set sets the pointer to the head
+	ss = NewSortedSet()
+	ss.Add(1)
+	ss.Add(2)
+	ss.Add(3)
+	ss.Add(4)
+	ss.Add(5)
+	v, _ = ss.Next()
+	if v != 2 {
+		panic("SortedSet_Next failed")
+	}
+
+	// remove 2 and make sure that the pointer is now at 3
+	ss.Remove(2)
+	if ss.Current() != 2 {
+		panic("SortedSet_Next failed")
+	}
+	v, _ = ss.Next()
+	if v != 3 {
+		panic("SortedSet_Next failed")
+	}
+
+	ss.Remove(4)
+	if ss.Current() != 3 {
+		panic("SortedSet_Next failed")
+	}
+	v, _ = ss.Next()
+	if v != 5 {
+		panic("SortedSet_Next failed")
+	}
+
+	ss = NewSortedSet(1, 2, 3)
+	ss.Next()
+	if ss.Current() != 2 {
+		panic("SortedSet_Next failed")
+	}
+
+	ss.InsertAfter(4, 2)
+	if ss.Current() != 2 {
+		panic("SortedSet_Next failed")
+	}
+	v, _ = ss.Next()
+	if v != 4 {
+		panic("SortedSet_Next failed")
+	}
+}
+
+func TestSortedSet_Previous(t *testing.T) {
+
+	ss := NewSortedSet(1, 2, 3, 4, 5)
+
+	// make sure that creating a new SortedSet sets the pointer to the head
+	v, _ := ss.Previous()
+	if v != nil {
+		panic("SortedSet_Previous failed")
+	}
+
+	ss.Last()
+	if ss.Current() != 5 {
+		panic("SortedSet_Previous failed")
+	}
+	v, _ = ss.Previous()
+	if v != 4 {
+		panic("SortedSet_Previous failed")
+	}
+
+	v, _ = ss.Previous()
+	if v != 3 {
+		panic("SortedSet_Previous failed")
+	}
+
+	// make sure that adding a new value to an empty set sets the pointer to the head
+	ss = NewSortedSet()
+	ss.Add(1)
+	ss.Add(2)
+	ss.Add(3)
+	ss.Add(4)
+	ss.Add(5)
+
+	ss.Last()
+
+	// remove 2 and make sure that the pointer is now at 3
+	ss.Remove(5)
+	if ss.Current() != 5 {
+		panic("SortedSet_Previous failed")
+	}
+	v, _ = ss.Previous()
+	if v != 4 {
+		panic("SortedSet_Previous failed")
+	}
+
+	ss.Remove(4)
+	if ss.Current() != 4 {
+		panic("SortedSet_Previous failed")
+	}
+	v, _ = ss.Previous()
+	if v != 3 {
+		panic("SortedSet_Previous failed")
+	}
+
+	ss = NewSortedSet(1, 2, 3)
+	ss.Last()
+
+	ss.InsertBefore(9, 3)
+	if ss.Current() != 3 {
+		panic("SortedSet_Previous failed")
+	}
+	v, _ = ss.Previous()
+	if v != 9 {
+		panic("SortedSet_Previous failed")
 	}
 }

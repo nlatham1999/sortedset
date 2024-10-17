@@ -7,13 +7,15 @@ import (
 
 type setKey struct {
 	previous interface{}
+	current  interface{}
 	next     interface{}
 }
 
 type SortedSet struct {
-	head   interface{}
-	tail   interface{}
-	values map[interface{}]*setKey
+	head    interface{}
+	tail    interface{}
+	values  map[interface{}]*setKey
+	pointer *setKey
 }
 
 type sortedSetSorter struct {
@@ -69,6 +71,9 @@ func NewSortedSet(values ...interface{}) *SortedSet {
 	for _, value := range values {
 		ss.Add(value)
 	}
+	if len(values) > 0 {
+		ss.pointer = ss.values[ss.head]
+	}
 	return ss
 }
 
@@ -80,20 +85,38 @@ func (ss *SortedSet) Add(value interface{}) error {
 
 	key := &setKey{}
 
-	if ss.head == nil {
+	if ss.head == nil { // if the set is empty
 		ss.head = value
 		ss.tail = value
 		key.previous = nil
 		key.next = nil
+		ss.pointer = key // set the pointer to the new value
 	} else {
 		key.previous = ss.tail
 		key.next = nil
 		ss.values[ss.tail].next = value
 		ss.tail = value
 	}
+	key.current = value
 	ss.values[value] = key
 
 	return nil
+}
+
+// returns the next value in the set after the given value
+func (ss *SortedSet) After(value interface{}) (interface{}, error) {
+	if key, ok := ss.values[value]; ok {
+		return key.next, nil
+	}
+	return nil, ErrItemDoesntExist
+}
+
+// returns the value before the given value
+func (ss *SortedSet) Before(value interface{}) (interface{}, error) {
+	if key, ok := ss.values[value]; ok {
+		return key.previous, nil
+	}
+	return nil, ErrItemDoesntExist
 }
 
 // returns if the value exists in the set
@@ -102,8 +125,18 @@ func (ss *SortedSet) Contains(value interface{}) bool {
 	return ok
 }
 
-// returns the first value in the set
+// returns the current value of the pointer
+func (ss *SortedSet) Current() interface{} {
+	if ss.pointer != nil {
+		return ss.pointer.current
+	} else {
+		return nil
+	}
+}
+
+// returns the first value in the set and sets the pointer to it
 func (ss *SortedSet) First() interface{} {
+	ss.pointer = ss.values[ss.head]
 	return ss.head
 }
 
@@ -121,6 +154,7 @@ func (ss *SortedSet) InsertAfter(value, after interface{}) error {
 
 	if afterKey, ok := ss.values[after]; ok {
 		key.previous = after
+		key.current = value
 		key.next = afterKey.next
 		afterKey.next = value
 		ss.values[value] = key
@@ -156,13 +190,15 @@ func (ss *SortedSet) InsertBefore(value, before interface{}) error {
 	key.previous = ss.values[before].previous
 	ss.values[before].previous = value
 	key.next = before
+	key.current = value
 	ss.values[value] = key
 
 	return nil
 }
 
-// returns the last value in the set
+// returns the last value in the set and sets the pointer to it
 func (ss *SortedSet) Last() interface{} {
+	ss.pointer = ss.values[ss.tail]
 	return ss.tail
 }
 
@@ -180,20 +216,34 @@ func (ss *SortedSet) List() []interface{} {
 	return slice
 }
 
-// returns the next value in the set
-func (ss *SortedSet) Next(value interface{}) (interface{}, error) {
-	if key, ok := ss.values[value]; ok {
-		return key.next, nil
+// moves the pointer to the next value in the set and returns it
+func (ss *SortedSet) Next() (interface{}, error) {
+	if ss.pointer == nil {
+		return nil, ErrItemDoesntExist
 	}
-	return nil, ErrItemDoesntExist
+
+	value := ss.pointer.next
+	if value == nil {
+		return nil, ErrItemDoesntExist
+	}
+
+	ss.pointer = ss.values[value]
+	return value, nil
 }
 
-// returns the previous value in the set
-func (ss *SortedSet) Previous(value interface{}) (interface{}, error) {
-	if key, ok := ss.values[value]; ok {
-		return key.previous, nil
+// moves the pointer to the previous value in the set and returns it
+func (ss *SortedSet) Previous() (interface{}, error) {
+	if ss.pointer == nil {
+		return nil, ErrItemDoesntExist
 	}
-	return nil, ErrItemDoesntExist
+
+	value := ss.pointer.previous
+	if value == nil {
+		return nil, ErrItemDoesntExist
+	}
+
+	ss.pointer = ss.values[value]
+	return value, nil
 }
 
 // removes a value from the set
@@ -211,6 +261,12 @@ func (ss *SortedSet) Remove(value interface{}) error {
 			ss.values[key.next].previous = key.previous
 		} else {
 			ss.tail = key.previous
+		}
+
+		// if the pointer is the value being removed, set the pointer.next
+		// key is being removed from the map so it is ok to change it
+		if ss.pointer == key {
+			ss.pointer.next = key.next
 		}
 
 		delete(ss.values, value)
