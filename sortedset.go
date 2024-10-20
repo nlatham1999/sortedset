@@ -134,6 +134,22 @@ func (ss *SortedSet) Current() interface{} {
 	}
 }
 
+// returns the difference of this set and the given set as a new set (this - set)
+func (ss *SortedSet) Difference(set *SortedSet) *SortedSet {
+	newSet := NewSortedSet()
+	for value := ss.First(); value != nil; value, _ = ss.Next() {
+		if !set.Contains(value) {
+			newSet.Add(value)
+		}
+	}
+	return newSet
+}
+
+// returns if the set is empty
+func (ss *SortedSet) Empty() bool {
+	return len(ss.values) == 0
+}
+
 // returns the first value in the set and sets the pointer to it
 func (ss *SortedSet) First() interface{} {
 	ss.pointer = ss.values[ss.head]
@@ -194,6 +210,17 @@ func (ss *SortedSet) InsertBefore(value, before interface{}) error {
 	ss.values[value] = key
 
 	return nil
+}
+
+// returns the intersection of this set and the given set as a new set
+func (ss *SortedSet) Intersection(set *SortedSet) *SortedSet {
+	newSet := NewSortedSet()
+	for value := ss.First(); value != nil; value, _ = ss.Next() {
+		if set.Contains(value) {
+			newSet.Add(value)
+		}
+	}
+	return newSet
 }
 
 // returns the last value in the set and sets the pointer to it
@@ -312,4 +339,34 @@ func (ss *SortedSet) SortAsc(f func(e interface{}) interface{}) {
 // sorts the set in descending order
 func (ss *SortedSet) SortDesc(f func(e interface{}) interface{}) {
 	ss.sort(true, f)
+}
+
+// returns the symmetric difference of this set and the given set as a new set (this XOR set)
+func (ss *SortedSet) SymmetricDifference(set *SortedSet) *SortedSet {
+	newSet := NewSortedSet()
+	for value := ss.First(); value != nil; value, _ = ss.Next() {
+		if !set.Contains(value) {
+			newSet.Add(value)
+		}
+	}
+	for value := set.First(); value != nil; value, _ = set.Next() {
+		if !ss.Contains(value) {
+			newSet.Add(value)
+		}
+	}
+	return newSet
+}
+
+// returns the union of this set and the given set as a new set
+func (ss *SortedSet) Union(set *SortedSet) *SortedSet {
+	newSet := NewSortedSet()
+	for value := ss.First(); value != nil; value, _ = ss.Next() {
+		newSet.Add(value)
+	}
+
+	for value := set.First(); value != nil; value, _ = set.Next() {
+		newSet.Add(value)
+	}
+
+	return newSet
 }

@@ -406,3 +406,191 @@ func TestSortedSet_Previous(t *testing.T) {
 		panic("SortedSet_Previous failed")
 	}
 }
+
+func TestSortedSet_Union(t *testing.T) {
+
+	ss1 := NewSortedSet(1, 2, 3)
+	ss2 := NewSortedSet(4, 5, 6)
+
+	ss3 := ss1.Union(ss2)
+
+	if !ss3.Contains(1) {
+		panic("SortedSet_Union failed")
+	}
+	if !ss3.Contains(2) {
+		panic("SortedSet_Union failed")
+	}
+	if !ss3.Contains(3) {
+		panic("SortedSet_Union failed")
+	}
+	if !ss3.Contains(4) {
+		panic("SortedSet_Union failed")
+	}
+	if !ss3.Contains(5) {
+		panic("SortedSet_Union failed")
+	}
+	if !ss3.Contains(6) {
+		panic("SortedSet_Union failed")
+	}
+
+	ss1 = NewSortedSet(1, 2, 3)
+	ss2 = NewSortedSet(2, 3, 4)
+	list := ss1.Union(ss2).List()
+	if list[0] != 1 {
+		panic("SortedSet_Union failed")
+	}
+	if list[1] != 2 {
+		panic("SortedSet_Union failed")
+	}
+	if list[2] != 3 {
+		panic("SortedSet_Union failed")
+	}
+	if list[3] != 4 {
+		panic("SortedSet_Union failed")
+	}
+
+	ss1 = NewSortedSet(1, 2, 3)
+	ss2 = NewSortedSet()
+	list = ss1.Union(ss2).List()
+	if list[0] != 1 {
+		panic("SortedSet_Union failed")
+	}
+}
+
+func TestSortedSet_Intersection(t *testing.T) {
+
+	ss1 := NewSortedSet(1, 2, 3)
+	ss2 := NewSortedSet(2, 3, 4)
+
+	ss3 := ss1.Intersection(ss2)
+
+	if !ss3.Contains(2) {
+		panic("SortedSet_Intersection failed")
+	}
+	if !ss3.Contains(3) {
+		panic("SortedSet_Intersection failed")
+	}
+
+	ss1 = NewSortedSet(1, 2, 3)
+	ss2 = NewSortedSet(4, 5, 6)
+	list := ss1.Intersection(ss2).List()
+	if len(list) != 0 {
+		panic("SortedSet_Intersection failed")
+	}
+
+	ss1 = NewSortedSet(1, 2, 3)
+	ss2 = NewSortedSet()
+	list = ss1.Intersection(ss2).List()
+	if len(list) != 0 {
+		panic("SortedSet_Intersection failed")
+	}
+}
+
+func TestSortedSet_Difference(t *testing.T) {
+
+	ss1 := NewSortedSet(1, 2, 3)
+	ss2 := NewSortedSet(2, 3, 4)
+
+	ss3 := ss1.Difference(ss2)
+
+	if !ss3.Contains(1) {
+		panic("SortedSet_Difference failed")
+	}
+
+	if ss3.Len() != 1 {
+		panic("SortedSet_Difference failed")
+	}
+
+	ss1 = NewSortedSet(1, 2, 3)
+	ss2 = NewSortedSet(4, 5, 6)
+	list := ss1.Difference(ss2).List()
+	if list[0] != 1 {
+		panic("SortedSet_Difference failed")
+	}
+	if list[1] != 2 {
+		panic("SortedSet_Difference failed")
+	}
+	if list[2] != 3 {
+		panic("SortedSet_Difference failed")
+	}
+
+	ss1 = NewSortedSet(1, 2, 3)
+	ss2 = NewSortedSet()
+	list = ss1.Difference(ss2).List()
+	if list[0] != 1 {
+		panic("SortedSet_Difference failed")
+	}
+	if list[1] != 2 {
+		panic("SortedSet_Difference failed")
+	}
+	if list[2] != 3 {
+		panic("SortedSet_Difference failed")
+	}
+}
+
+func TestSortedSet_SymmetricDifference(t *testing.T) {
+
+	ss1 := NewSortedSet(1, 2, 3)
+	ss2 := NewSortedSet(2, 3, 4)
+
+	ss3 := ss1.SymmetricDifference(ss2)
+
+	if !ss3.Contains(1) {
+		panic("SortedSet_SymmetricDifference failed")
+	}
+	if !ss3.Contains(4) {
+		panic("SortedSet_SymmetricDifference failed")
+	}
+
+	ss1 = NewSortedSet(1, 2, 3)
+	ss2 = NewSortedSet(4, 5, 6)
+	list := ss1.SymmetricDifference(ss2).List()
+	if list[0] != 1 {
+		panic("SortedSet_SymmetricDifference failed")
+	}
+	if list[1] != 2 {
+		panic("SortedSet_SymmetricDifference failed")
+	}
+	if list[2] != 3 {
+		panic("SortedSet_SymmetricDifference failed")
+	}
+	if list[3] != 4 {
+		panic("SortedSet_SymmetricDifference failed")
+	}
+	if list[4] != 5 {
+		panic("SortedSet_SymmetricDifference failed")
+	}
+	if list[5] != 6 {
+		panic("SortedSet_SymmetricDifference failed")
+	}
+
+	ss1 = NewSortedSet(1, 2, 3)
+	ss2 = NewSortedSet()
+	list = ss1.SymmetricDifference(ss2).List()
+	if list[0] != 1 {
+		panic("SortedSet_SymmetricDifference failed")
+	}
+	if list[1] != 2 {
+		panic("SortedSet_SymmetricDifference failed")
+	}
+	if list[2] != 3 {
+		panic("SortedSet_SymmetricDifference failed")
+	}
+}
+
+func TestSortedSet_Empty(t *testing.T) {
+	ss := NewSortedSet()
+	if !ss.Empty() {
+		panic("SortedSet_Empty failed")
+	}
+
+	ss = NewSortedSet(1)
+	if ss.Empty() {
+		panic("SortedSet_Empty failed")
+	}
+
+	ss.Remove(ss.First())
+	if !ss.Empty() {
+		panic("SortedSet_Empty failed")
+	}
+}
