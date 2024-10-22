@@ -594,3 +594,120 @@ func TestSortedSet_Empty(t *testing.T) {
 		panic("SortedSet_Empty failed")
 	}
 }
+
+func TestSortedSet_Ask(t *testing.T) {
+	ss := NewSortedSet(1, 2, 3)
+	counter := 0
+	result := 0
+	ss.Ask(func(value1 interface{}) {
+		ss.Ask(func(value2 interface{}) {
+			ss.Ask(func(value3 interface{}) {
+				counter++
+				result += (value1.(int) * value2.(int) * value3.(int))
+				if counter > 100 {
+					panic("SortedSet_Ask failed")
+				}
+			})
+		})
+	})
+
+	if result != 216 {
+		panic("SortedSet_Ask failed")
+	}
+
+	if counter != 27 {
+		panic("SortedSet_Ask failed")
+	}
+}
+
+func TestSortedSet_AskWithARemove(t *testing.T) {
+	// test removing the next value in the loop
+	ss := NewSortedSet(1, 2, 3, 4, 5)
+	loop1 := []interface{}{}
+	ss.Ask(func(value1 interface{}) {
+		ss.Ask(func(value2 interface{}) {
+			if value1 == 2 && value2 == 1 {
+				ss.Remove(3)
+			}
+		})
+		loop1 = append(loop1, value1)
+	})
+
+	if len(loop1) != 4 {
+		panic("SortedSet_AskWithARemove failed")
+	}
+
+	if loop1[0] != 1 {
+		panic("SortedSet_AskWithARemove failed")
+	}
+
+	if loop1[1] != 2 {
+		panic("SortedSet_AskWithARemove failed")
+	}
+
+	if loop1[2] != 4 {
+		panic("SortedSet_AskWithARemove failed")
+	}
+
+	// removing current value
+	ss = NewSortedSet(1, 2, 3, 4, 5)
+	loop1 = []interface{}{}
+	ss.Ask(func(value1 interface{}) {
+		ss.Ask(func(value2 interface{}) {
+			if value1 == 2 {
+				ss.Remove(2)
+			}
+		})
+		loop1 = append(loop1, value1)
+	})
+
+	if len(loop1) != 5 {
+		panic("SortedSet_AskWithARemove failed")
+	}
+
+	// removing value two steps ahead
+	ss = NewSortedSet(1, 2, 3, 4, 5)
+	loop1 = []interface{}{}
+	ss.Ask(func(value1 interface{}) {
+		ss.Ask(func(value2 interface{}) {
+			if value1 == 2 {
+				ss.Remove(4)
+			}
+		})
+		loop1 = append(loop1, value1)
+	})
+
+	if len(loop1) != 4 {
+		panic("SortedSet_AskWithARemove failed")
+	}
+}
+
+func TestSortedSet_AskWithAnAdd(t *testing.T) {
+
+	ss := NewSortedSet(1, 2)
+	loop1 := []interface{}{}
+	ss.Ask(func(value1 interface{}) {
+		ss.Ask(func(value2 interface{}) {
+			if value1 == 2 && value2 == 1 {
+				ss.Add(3)
+			}
+		})
+		loop1 = append(loop1, value1)
+	})
+
+	if len(loop1) != 3 {
+		panic("SortedSet_AskWithAnAdd failed")
+	}
+
+	if loop1[0] != 1 {
+		panic("SortedSet_AskWithAnAdd failed")
+	}
+
+	if loop1[1] != 2 {
+		panic("SortedSet_AskWithAnAdd failed")
+	}
+
+	if loop1[2] != 3 {
+		panic("SortedSet_AskWithAnAdd failed")
+	}
+}

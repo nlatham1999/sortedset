@@ -111,6 +111,51 @@ func (ss *SortedSet) After(value interface{}) (interface{}, error) {
 	return nil, ErrItemDoesntExist
 }
 
+// takes a function that returns a boolean and returns true if all values in the set return true
+func (ss *SortedSet) All(operation func(value interface{}) bool) bool {
+	pointer := ss.pointer
+	for value := ss.First(); value != nil; value, _ = ss.Next() {
+		if !operation(value) {
+			if pointer != nil {
+				ss.pointer = pointer
+			}
+			return false
+		}
+	}
+	if pointer != nil {
+		ss.pointer = pointer
+	}
+	return true
+}
+
+// takes a function that returns a boolean and returns true if any value in the set returns true
+func (ss *SortedSet) Any(operation func(value interface{}) bool) bool {
+	pointer := ss.pointer
+	for value := ss.First(); value != nil; value, _ = ss.Next() {
+		if operation(value) {
+			if pointer != nil {
+				ss.pointer = pointer
+			}
+			return true
+		}
+	}
+	if pointer != nil {
+		ss.pointer = pointer
+	}
+	return false
+}
+
+// takes a function and applies it to all values in the set
+func (ss *SortedSet) Ask(operation func(value interface{})) {
+	pointer := ss.pointer
+	for value := ss.First(); value != nil; value, _ = ss.Next() {
+		operation(value)
+	}
+	if pointer != nil {
+		ss.pointer = pointer
+	}
+}
+
 // returns the value before the given value
 func (ss *SortedSet) Before(value interface{}) (interface{}, error) {
 	if key, ok := ss.values[value]; ok {

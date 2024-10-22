@@ -10,6 +10,7 @@ import "github.com/nlatham1999/sortedset"
 
 ## Example Usage
 
+sorting:  
 ```go
 	type coord struct {
 		x, y int
@@ -21,15 +22,59 @@ import "github.com/nlatham1999/sortedset"
 	})
 ```
 
+inserting:  
 ```go
 	ss := NewSortedSet(1, 3)
 	ss.InsertBefore(2, 3)
 ```
 
+using next:  
 ```go
 	ss := NewSortedSet(1, 2, 3)
 	next, _ := ss.Next(1)
 ```
+
+nested loops:  
+```go
+	ss := NewSortedSet(1, 2, 3)
+	result := 0
+	ss.Ask(func(value1 interface{}) {
+		ss.Ask(func(value2 interface{}) {
+			ss.Ask(func(value3 interface{}) {
+				result += (value1.(int) * value2.(int) * value3.(int))
+			})
+		})
+	})
+```
+
+## Tips
+
+When looping through the set it is fine doing something like this:  
+```go
+	v := ss.First()
+  for v != nil {
+    // operation
+	  v, _ = ss.Next()
+  }
+```
+
+But when you are using nested loops you must use the Ask function. This is because the pointer pointing to the next value will be shared by every nested loop causing it to exit early/infinite loop.
+```go
+  //instead of this:
+  for v := ss.First(); v != nil; v, _ = ss.Next() {
+    for v2 := ss.First(); v2 != nil; v2, _ = ss.Next() {
+      // operation
+    }  
+  }
+
+  // do this:
+	ss.Ask(func(value1 interface{}) {
+		ss.Ask(func(value2 interface{}) {
+      //operation
+		})
+	})
+```
+  
 
 ## Index
 
@@ -38,6 +83,9 @@ import "github.com/nlatham1999/sortedset"
   - [func NewSortedSet\(values ...interface\{\}\) \*SortedSet](<#NewSortedSet>)
   - [func \(ss \*SortedSet\) Add\(value interface\{\}\) error](<#SortedSet.Add>)
   - [func \(ss \*SortedSet\) After\(value interface\{\}\) \(interface\{\}, error\)](<#SortedSet.After>)
+  - [func \(ss \*SortedSet\) All\(operation func\(value interface\{\}\) bool\) bool](<#SortedSet.All>)
+  - [func \(ss \*SortedSet\) Any\(operation func\(value interface\{\}\) bool\) bool](<#SortedSet.Any>)
+  - [func \(ss \*SortedSet\) Ask\(operation func\(value interface\{\}\)\)](<#SortedSet.Ask>)
   - [func \(ss \*SortedSet\) Before\(value interface\{\}\) \(interface\{\}, error\)](<#SortedSet.Before>)
   - [func \(ss \*SortedSet\) Contains\(value interface\{\}\) bool](<#SortedSet.Contains>)
   - [func \(ss \*SortedSet\) Current\(\) interface\{\}](<#SortedSet.Current>)
@@ -107,6 +155,33 @@ func (ss *SortedSet) After(value interface{}) (interface{}, error)
 ```
 
 returns the next value in the set after the given value
+
+<a name="SortedSet.All"></a>
+### func \(\*SortedSet\) All
+
+```go
+func (ss *SortedSet) All(operation func(value interface{}) bool) bool
+```
+
+takes a function that returns a boolean and returns true if all values in the set return true
+
+<a name="SortedSet.Any"></a>
+### func \(\*SortedSet\) Any
+
+```go
+func (ss *SortedSet) Any(operation func(value interface{}) bool) bool
+```
+
+takes a function that returns a boolean and returns true if any value in the set returns true
+
+<a name="SortedSet.Ask"></a>
+### func \(\*SortedSet\) Ask
+
+```go
+func (ss *SortedSet) Ask(operation func(value interface{}))
+```
+
+takes a function and applies it to all values in the set
 
 <a name="SortedSet.Before"></a>
 ### func \(\*SortedSet\) Before
