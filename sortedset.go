@@ -113,46 +113,34 @@ func (ss *SortedSet) After(value interface{}) (interface{}, error) {
 
 // takes a function that returns a boolean and returns true if all values in the set return true
 func (ss *SortedSet) All(operation func(value interface{}) bool) bool {
-	pointer := ss.pointer
 	for value := ss.First(); value != nil; value, _ = ss.Next() {
+		loopPointer := ss.pointer
 		if !operation(value) {
-			if pointer != nil {
-				ss.pointer = pointer
-			}
 			return false
 		}
-	}
-	if pointer != nil {
-		ss.pointer = pointer
+		ss.pointer = loopPointer
 	}
 	return true
 }
 
 // takes a function that returns a boolean and returns true if any value in the set returns true
 func (ss *SortedSet) Any(operation func(value interface{}) bool) bool {
-	pointer := ss.pointer
 	for value := ss.First(); value != nil; value, _ = ss.Next() {
+		loopPointer := ss.pointer
 		if operation(value) {
-			if pointer != nil {
-				ss.pointer = pointer
-			}
 			return true
 		}
-	}
-	if pointer != nil {
-		ss.pointer = pointer
+		ss.pointer = loopPointer
 	}
 	return false
 }
 
 // takes a function and applies it to all values in the set
 func (ss *SortedSet) Ask(operation func(value interface{})) {
-	pointer := ss.pointer
 	for value := ss.First(); value != nil; value, _ = ss.Next() {
+		loopPointer := ss.pointer
 		operation(value)
-	}
-	if pointer != nil {
-		ss.pointer = pointer
+		ss.pointer = loopPointer
 	}
 }
 
@@ -183,9 +171,11 @@ func (ss *SortedSet) Current() interface{} {
 func (ss *SortedSet) Difference(set *SortedSet) *SortedSet {
 	newSet := NewSortedSet()
 	for value := ss.First(); value != nil; value, _ = ss.Next() {
+		loopPointer := ss.pointer
 		if !set.Contains(value) {
 			newSet.Add(value)
 		}
+		ss.pointer = loopPointer
 	}
 	return newSet
 }
@@ -195,7 +185,7 @@ func (ss *SortedSet) Empty() bool {
 	return len(ss.values) == 0
 }
 
-// returns the first value in the set and sets the pointer to it
+// returns the first value in the set
 func (ss *SortedSet) First() interface{} {
 	ss.pointer = ss.values[ss.head]
 	return ss.head
@@ -261,9 +251,11 @@ func (ss *SortedSet) InsertBefore(value, before interface{}) error {
 func (ss *SortedSet) Intersection(set *SortedSet) *SortedSet {
 	newSet := NewSortedSet()
 	for value := ss.First(); value != nil; value, _ = ss.Next() {
+		loopPointer := ss.pointer
 		if set.Contains(value) {
 			newSet.Add(value)
 		}
+		ss.pointer = loopPointer
 	}
 	return newSet
 }
@@ -390,15 +382,21 @@ func (ss *SortedSet) SortDesc(f func(e interface{}) interface{}) {
 func (ss *SortedSet) SymmetricDifference(set *SortedSet) *SortedSet {
 	newSet := NewSortedSet()
 	for value := ss.First(); value != nil; value, _ = ss.Next() {
+		loopPointer := ss.pointer
 		if !set.Contains(value) {
 			newSet.Add(value)
 		}
+		ss.pointer = loopPointer
 	}
+
 	for value := set.First(); value != nil; value, _ = set.Next() {
+		loopPointer := set.pointer
 		if !ss.Contains(value) {
 			newSet.Add(value)
 		}
+		set.pointer = loopPointer
 	}
+
 	return newSet
 }
 
@@ -406,11 +404,15 @@ func (ss *SortedSet) SymmetricDifference(set *SortedSet) *SortedSet {
 func (ss *SortedSet) Union(set *SortedSet) *SortedSet {
 	newSet := NewSortedSet()
 	for value := ss.First(); value != nil; value, _ = ss.Next() {
+		loopPointer := ss.pointer
 		newSet.Add(value)
+		ss.pointer = loopPointer
 	}
 
 	for value := set.First(); value != nil; value, _ = set.Next() {
+		loopPointer := set.pointer
 		newSet.Add(value)
+		set.pointer = loopPointer
 	}
 
 	return newSet

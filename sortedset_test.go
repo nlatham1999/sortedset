@@ -1,6 +1,7 @@
 package sortedset
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -709,5 +710,49 @@ func TestSortedSet_AskWithAnAdd(t *testing.T) {
 
 	if loop1[2] != 3 {
 		panic("SortedSet_AskWithAnAdd failed")
+	}
+}
+
+func TestSortedSet_FirstInNestedAsk(t *testing.T) {
+	ss := NewSortedSet(1, 2, 3)
+	counter := 0
+	ss.Ask(func(value1 interface{}) {
+
+		count := 0
+		for v := ss.First(); v != nil && count < 2; v, _ = ss.Next() {
+			// count++
+		}
+
+		ss.Ask(func(value2 interface{}) {
+			fmt.Println("value2", value2)
+			counter++
+		})
+	})
+
+	if counter != 9 {
+		panic("SortedSet_FirstInNestedAsk failed")
+	}
+}
+
+func TestSortedSet_FirstInNestedAny(t *testing.T) {
+	ss := NewSortedSet(1, 2, 3)
+	counter := 0
+	ss.Any(func(value1 interface{}) bool {
+
+		fmt.Println("value1", value1)
+		count := 0
+		for v := ss.First(); v != nil && count < 2; v, _ = ss.Next() {
+			count++
+		}
+
+		a := ss.Any(func(value2 interface{}) bool {
+			counter++
+			return value2 == 100 && value1 == 100
+		})
+		return a
+	})
+
+	if counter != 9 {
+		panic("SortedSet_FirstInNestedAsk failed")
 	}
 }
