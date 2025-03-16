@@ -756,3 +756,19 @@ func TestSortedSet_FirstInNestedAny(t *testing.T) {
 		panic("SortedSet_FirstInNestedAsk failed")
 	}
 }
+
+func TestSortedSet_RandomValue(t *testing.T) {
+	ss := NewSortedSet(1, 2, 3)
+	if ss.RandomValue() == nil {
+		panic("SortedSet_RandomValue failed")
+	}
+}
+
+func TestSortedSet_RandomValueWhere(t *testing.T) {
+	ss := NewSortedSet(1, 2, 3)
+	if ss.RandomValueWhere(func(value interface{}) bool {
+		return value.(int) > 1 && value.(int) < 3
+	}) != 2 {
+		panic("SortedSet_RandomValueWhere failed")
+	}
+}

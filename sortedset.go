@@ -310,6 +310,24 @@ func (ss *SortedSet) Previous() (interface{}, error) {
 	return value, nil
 }
 
+// returns a random value from the set
+func (ss *SortedSet) RandomValue() interface{} {
+	for key, _ := range ss.values {
+		return key
+	}
+	return nil
+}
+
+// returns a random value from the set that satisfies the given operation
+func (ss *SortedSet) RandomValueWhere(operation func(value interface{}) bool) interface{} {
+	for key, _ := range ss.values {
+		if operation(key) {
+			return key
+		}
+	}
+	return nil
+}
+
 // removes a value from the set
 func (ss *SortedSet) Remove(value interface{}) error {
 	if _, ok := ss.values[value]; ok {

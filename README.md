@@ -100,6 +100,8 @@ But when you are using nested loops you must use the Ask function. This is becau
   - [func \(ss \*SortedSet\) List\(\) \[\]interface\{\}](<#SortedSet.List>)
   - [func \(ss \*SortedSet\) Next\(\) \(interface\{\}, error\)](<#SortedSet.Next>)
   - [func \(ss \*SortedSet\) Previous\(\) \(interface\{\}, error\)](<#SortedSet.Previous>)
+  - [func \(ss \*SortedSet\) RandomValue\(\) interface\{\}](<#SortedSet.RandomValue>)
+  - [func \(ss \*SortedSet\) RandomValueWhere\(operation func\(value interface\{\}\) bool\) interface\{\}](<#SortedSet.RandomValueWhere>)
   - [func \(ss \*SortedSet\) Remove\(value interface\{\}\) error](<#SortedSet.Remove>)
   - [func \(ss \*SortedSet\) SortAsc\(f func\(e interface\{\}\) interface\{\}\)](<#SortedSet.SortAsc>)
   - [func \(ss \*SortedSet\) SortDesc\(f func\(e interface\{\}\) interface\{\}\)](<#SortedSet.SortDesc>)
@@ -235,7 +237,7 @@ returns if the set is empty
 func (ss *SortedSet) First() interface{}
 ```
 
-returns the first value in the set and sets the pointer to it
+returns the first value in the set
 
 <a name="SortedSet.InsertAfter"></a>
 ### func \(\*SortedSet\) InsertAfter
@@ -308,6 +310,24 @@ func (ss *SortedSet) Previous() (interface{}, error)
 ```
 
 moves the pointer to the previous value in the set and returns it
+
+<a name="SortedSet.RandomValue"></a>
+### func \(\*SortedSet\) RandomValue
+
+```go
+func (ss *SortedSet) RandomValue() interface{}
+```
+
+returns a random value from the set
+
+<a name="SortedSet.RandomValueWhere"></a>
+### func \(\*SortedSet\) RandomValueWhere
+
+```go
+func (ss *SortedSet) RandomValueWhere(operation func(value interface{}) bool) interface{}
+```
+
+returns a random value from the set that satisfies the given operation
 
 <a name="SortedSet.Remove"></a>
 ### func \(\*SortedSet\) Remove
